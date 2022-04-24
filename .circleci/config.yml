@@ -27,7 +27,7 @@ jobs:
               --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
               --region us-east-1
   
-  # Ex: 3
+  # Ex: config and deploy
   configure_infrastructure: 
     docker:
       - image: python:3.7-alpine3.11
@@ -44,12 +44,29 @@ jobs:
           name: Run Playbook and Configure server
           command: |
             ansible-playbook -i inventory main.yml
+
+  # Exercise: Smoke Testing
+  smoke_test:
+  docker:
+    - image: alpine:latest
+  steps:
+    - run: apk add --update curl
+    - run:
+        name: smoke test
+        command: |
+          URL="https://blog.udacity.com/"
+          # Test if website exists
+          if curl -s --head ${URL} 
+          then
+            return 0
+          else
+            return 1
+          fi
 # Sequential workflow
 workflows:
   # Name the workflow
   my_workflow:
     jobs:
       #- create_infrastructure
-      - configure_infrastructure
-    #  - myjob1
-      #- myjob2
+      #- configure_infrastructure
+      - smoke_test
