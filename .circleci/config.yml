@@ -45,8 +45,7 @@ jobs:
           command: |
             ansible-playbook -i inventory main.yml
   
-  destroy_environments:
-    commands:
+  commands:
     # Exercise - Rollback
     destroy_environment:
       steps:
@@ -74,7 +73,7 @@ jobs:
             else
               return 1
             fi
-      - destroy_environments
+      - destroy_environment
   
 # Sequential workflow
 workflows:
