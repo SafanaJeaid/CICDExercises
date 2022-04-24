@@ -44,6 +44,19 @@ jobs:
           name: Run Playbook and Configure server
           command: |
             ansible-playbook -i inventory main.yml
+  
+  destroy_environments:
+    commands:
+    # Exercise - Rollback
+    destroy_environment:
+      steps:
+        - run:
+            name: Destroy environment
+            # ${CIRCLE_WORKFLOW_ID} is a Built-in environment variable 
+            # ${CIRCLE_WORKFLOW_ID:0:5} takes the first 5 chars of the variable CIRCLE_CI_WORKFLOW_ID 
+            when: on_fail
+            command: |
+              aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:7}
 
   # Exercise: Smoke Testing
   smoke_test:
@@ -55,17 +68,19 @@ jobs:
           name: smoke test
           command: |
             URL= "https://blog.udacity.com/"
-            if curl -s --head ${URL} 
+            if curl -s --head ${URL}
             then
               return 0
             else
               return 1
             fi
+      - destroy_environments
+  
 # Sequential workflow
 workflows:
   # Name the workflow
   my_workflow:
     jobs:
-      #- create_infrastructure
+      - create_infrastructure
       #- configure_infrastructure
       - smoke_test
